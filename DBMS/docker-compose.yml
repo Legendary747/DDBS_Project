@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  mysql-primary-1:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword1
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-primary-1-data:/var/lib/mysql
+  mysql-primary-2:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword2
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-primary-2-data:/var/lib/mysql
+  mysql-backup-1:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: backuppassword1
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-backup-1-data:/var/lib/mysql
+  mysql-backup-2:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: backuppassword2
+    ports:
+      - "3309:3306"
+    volumes:
+      - mysql-backup-2-data:/var/lib/mysql
+
+volumes:
+  mysql-primary-1-data:
+  mysql-primary-2-data:
+  mysql-backup-1-data:
+  mysql-backup-2-data:

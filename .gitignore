@@ -1,0 +1,7 @@
+# Generated sql files are ignored by git
+/db-generation/articles
+/db-generation/user_beijing.sql
+/db-generation/user_hongkong.sql
+/db-generation/article.sql
+/db-generation/user_read.sql
+/db-generation/be_read.sql
