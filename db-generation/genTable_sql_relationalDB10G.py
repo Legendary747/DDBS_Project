@@ -12,6 +12,10 @@ READS_NUM = 1000000
 uid_region = {}
 aid_lang = {}
 
+output_folder = os.path.join("..", "sql_data")
+
+# Ensure the output folder exists
+os.makedirs(output_folder, exist_ok=True)
 
 # Beijing:60%   Hong Kong:40%
 # en:20%    zh:80%
@@ -72,20 +76,20 @@ def gen_an_article (i):
     article["articleTags"] = "tags%d" % int(random.random() * 50)
     article["authors"]  = "author%d" % int(random.random() * 2000)
     article["language"] = "en" if random.random() > 0.5 else "zh"
+    aid_category[str(i)] = article["category"]
 
     # create text
-    article["text"] = "text_a"+str(i)+'.txt'
-    path = './articles/article'+str(i)
+    article["text"] = "text_a" + str(i) + '.txt'
+    path = output_folder + '/articles/article' + str(i)
     if not os.path.exists(path):
         os.makedirs(path) 
 
     categories = ['business', 'entertainment', 'sport', 'tech']
     random_category = categories[random.randint(0,3)]
     files = os.listdir('./bbc_news_texts/' + random_category +'/')
-    aid_category[str(i)] = random_category
     size = len(files)
     random_news = files[random.randint(0,size-1)]
-    copyfile('bbc_news_texts/' + random_category +'/' +random_news, path+"/text_a"+str(i)+'.txt')
+    # copyfile('bbc_news_texts/' + random_category +'/' +random_news, path+"/text_a"+str(i)+'.txt')
 
     # create images
     image_num = random.randint(1,3)
@@ -95,16 +99,19 @@ def gen_an_article (i):
     article["image"] = image_str
 
     for j in range(image_num):
-        copyfile('./image/' + str(random.randint(0,599))+'.jpg',path+'/image_a'+str(i)+'_'+str(j)+'.jpg')
+        a = 1
+        # copyfile('./image/' + str(random.randint(0,599))+'.jpg',path+'/image_a'+str(i)+'_'+str(j)+'.jpg')
 
     # create video
     if random.random() < 0.05:
         #has one video
         article["video"] = "video_a"+str(i)+'_video.flv'
         if random.random()<0.5:
-            copyfile('./video/video1.flv',path+"/video_a"+str(i)+'_video.flv')
+            a = 1
+            # copyfile('./video/video1.flv',path+"/video_a"+str(i)+'_video.flv')
         else:
-            copyfile('./video/video2.flv',path+"/video_a"+str(i)+'_video.flv')
+            a = 1
+            # copyfile('./video/video2.flv',path+"/video_a"+str(i)+'_video.flv')
     else:
         article["video"] = ""
 
@@ -174,7 +181,7 @@ def gen_an_read (i):
 
     if (random.random() > ps[0]):
         # read["readOrNot"] = "0";
-        return gen_an_read (i)
+        return gen_an_read(i)
     else:
         # read["readOrNot"] = "1"
         read["readTimeLength"] = str(int(random.random() * 100))
@@ -194,11 +201,11 @@ def gen_an_read (i):
             "\"" + read["agreeOrNot"] + "\", " + \
             "\"" + read["commentOrNot"] + "\", " + \
             "\"" + read["shareOrNot"] + "\", " + \
-            "\"" + read["commentDetail"] + "\")"
+            "\"" + read["commentDetail"] + "\")", read["uid"]
 
 
 
-with open("user_beijing.sql", "w+") as f_beijing, open("user_hongkong.sql", "w+") as f_hongkong:
+with open(os.path.join(output_folder, "user_beijing.sql"), "w+") as f_beijing, open(os.path.join(output_folder, "user_hongkong.sql"), "w+") as f_hongkong:
     f_beijing.write("DROP TABLE IF EXISTS `user`;\n")
     f_beijing.write("CREATE TABLE `user` (\n" + \
             "  `timestamp` char(14) DEFAULT NULL,\n" + \
@@ -259,7 +266,7 @@ with open("user_beijing.sql", "w+") as f_beijing, open("user_hongkong.sql", "w+"
     f_beijing.write("UNLOCK TABLES;\n\n\n")
     f_hongkong.write("UNLOCK TABLES;\n\n\n")
 
-with open("article_1.sql", "w+") as f_1, open("article_2.sql", "w+") as f_2:
+with open(os.path.join(output_folder, "article_1.sql"), "w+") as f_1, open(os.path.join(output_folder, "article_2.sql"), "w+") as f_2:
     f_1.write("DROP TABLE IF EXISTS `article`;\n")
     f_1.write("CREATE TABLE `article` (\n" + \
             "  `timestamp` char(14) DEFAULT NULL,\n" + \
@@ -272,7 +279,7 @@ with open("article_1.sql", "w+") as f_1, open("article_2.sql", "w+") as f_2:
             "  `authors` char(13) DEFAULT NULL,\n" +  \
             "  `language` char(3) DEFAULT NULL,\n" +  \
             "  `text` char(31) DEFAULT NULL,\n" +  \
-            "  `image` char(32) DEFAULT NULL,\n" +  \
+            "  `image` varchar(256) DEFAULT NULL,\n" +  \
             "  `video` char(32) DEFAULT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n\n")
     f_1.write("LOCK TABLES `article` WRITE;\n")
     f_1.write("INSERT INTO `article` VALUES\n")
@@ -289,21 +296,21 @@ with open("article_1.sql", "w+") as f_1, open("article_2.sql", "w+") as f_2:
             "  `authors` char(13) DEFAULT NULL,\n" +  \
             "  `language` char(3) DEFAULT NULL,\n" +  \
             "  `text` char(31) DEFAULT NULL,\n" +  \
-            "  `image` char(32) DEFAULT NULL,\n" +  \
+            "  `image` varchar(256) DEFAULT NULL,\n" +  \
             "  `video` char(32) DEFAULT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n\n")
     f_2.write("LOCK TABLES `article` WRITE;\n")
     f_2.write("INSERT INTO `article` VALUES\n")
     article_one_last = None
     article_two_last = None
     for i in range (ARTICLES_NUM):
-        if (aid_category[str(i)] == 'tech'):
-            if article_two_last is not None:
-                f_2.write("  " + article_two_last + ",\n")
-            article_two_last = gen_an_article(i)
-        else:
+        current_article = gen_an_article(i)
+        if (aid_category[str(i)] == 'science'):
             if article_one_last is not None:
                 f_1.write("  " + article_one_last + ",\n")
-            article_one_last = gen_an_article(i)
+            article_one_last = current_article
+        if article_two_last is not None:
+            f_2.write("  " + article_two_last + ",\n")
+        article_two_last = current_article
 
     # Write the last article for each file
     if article_one_last is not None:
@@ -348,7 +355,7 @@ def update_be_read(read_entry):
         be_read_entry['shareUidList'].add(uid)
     be_read_dict[aid] = be_read_entry      
 
-with open("user_read_1.sql", "w+") as f_1, open("user_read_2.sql", "w+") as f_2:
+with open(os.path.join(output_folder, "user_read_1.sql"), "w+") as f_1, open(os.path.join(output_folder, "user_read_2.sql"), "w+") as f_2:
     f_1.write("DROP TABLE IF EXISTS `user_read`;\n")
     f_1.write("CREATE TABLE `user_read` (\n" + \
             "  `timestamp` char(14) DEFAULT NULL,\n" + \
@@ -379,8 +386,10 @@ with open("user_read_1.sql", "w+") as f_1, open("user_read_2.sql", "w+") as f_2:
     read_two_last = None
 
     for i in range (READS_NUM):
-        read_entry = gen_an_read(i)
-        if (uid_region[str(i)] == 'Beijing'):
+        read_entry, uid = gen_an_read(i)
+        # print(read_entry)
+        # print(uid)
+        if (uid_region[uid] == 'Beijing'):
             if read_one_last is not None:
                 f_1.write("  " + read_one_last + ",\n")
             read_one_last = read_entry
@@ -396,7 +405,7 @@ with open("user_read_1.sql", "w+") as f_1, open("user_read_2.sql", "w+") as f_2:
     f_2.write("UNLOCK TABLES;\n\n\n")
 
 # After all Read entries are processed, write Be-Read data to SQL
-with open("be_read_1.sql", "w+") as f_1, open("be_read_2.sql", "w+") as f_2:
+with open(os.path.join(output_folder, "be_read_1.sql"), "w+") as f_1, open(os.path.join(output_folder, "be_read_2.sql"), "w+") as f_2:
     f_1.write("DROP TABLE IF EXISTS `be_read`;\n")
     f_1.write("CREATE TABLE `be_read` (\n" + \
             "  `timestamp` char(14) DEFAULT NULL,\n" + \
@@ -432,22 +441,7 @@ with open("be_read_1.sql", "w+") as f_1, open("be_read_2.sql", "w+") as f_2:
     be_read_two_last = None
     for i in range(len(be_read_items) - 1):
         be_read_entry = be_read_items[i][1]
-        if aid_category[be_read_entry['aid']] == 'tech':
-            if be_read_two_last is not None:
-                f_2.write("  (" + \
-                "\"" + be_read_two_last['timestamp'] + "\", " + \
-                "\"" + be_read_two_last['id'] + "\", " + \
-                "\"" + be_read_two_last['aid'] + "\", " + \
-                "\"" + str(be_read_two_last['readNum']) + "\", " + \
-                "\"" + ','.join(be_read_two_last['readUidList']) + "\", " + \
-                "\"" + str(be_read_two_last['commentNum']) + "\", " + \
-                "\"" + ','.join(be_read_two_last['commentUidList']) + "\", " + \
-                "\"" + str(be_read_two_last['agreeNum']) + "\", " + \
-                "\"" + ','.join(be_read_two_last['agreeUidList']) + "\", " + \
-                "\"" + str(be_read_two_last['shareNum']) + "\", " + \
-                "\"" + ','.join(be_read_two_last['shareUidList']) + "\"),\n")
-            be_read_two_last = be_read_entry
-        else:
+        if aid_category[be_read_entry['aid']] == 'science':
             if be_read_one_last is not None:
                 f_1.write("  (" + \
                 "\"" + be_read_one_last['timestamp'] + "\", " + \
@@ -462,6 +456,21 @@ with open("be_read_1.sql", "w+") as f_1, open("be_read_2.sql", "w+") as f_2:
                 "\"" + str(be_read_one_last['shareNum']) + "\", " + \
                 "\"" + ','.join(be_read_one_last['shareUidList']) + "\"),\n")
             be_read_one_last = be_read_entry
+        if be_read_two_last is not None:
+            f_2.write("  (" + \
+            "\"" + be_read_two_last['timestamp'] + "\", " + \
+            "\"" + be_read_two_last['id'] + "\", " + \
+            "\"" + be_read_two_last['aid'] + "\", " + \
+            "\"" + str(be_read_two_last['readNum']) + "\", " + \
+            "\"" + ','.join(be_read_two_last['readUidList']) + "\", " + \
+            "\"" + str(be_read_two_last['commentNum']) + "\", " + \
+            "\"" + ','.join(be_read_two_last['commentUidList']) + "\", " + \
+            "\"" + str(be_read_two_last['agreeNum']) + "\", " + \
+            "\"" + ','.join(be_read_two_last['agreeUidList']) + "\", " + \
+            "\"" + str(be_read_two_last['shareNum']) + "\", " + \
+            "\"" + ','.join(be_read_two_last['shareUidList']) + "\"),\n")
+        be_read_two_last = be_read_entry
+            
     # Write the last entry for each file
     if be_read_one_last is not None:
         f_1.write("  (" + \
@@ -504,7 +513,7 @@ top_5_week = get_top_5_articles(week_rank)
 top_5_day = get_top_5_articles(day_rank)
 
 # Also write the popular rank data to SQL
-with open("popular_rank_1.sql", "w+") as f_1, open("popular_rank_2.sql", "w+") as f_2:
+with open(os.path.join(output_folder, "popular_rank_1.sql"), "w+") as f_1, open(os.path.join(output_folder, "popular_rank_2.sql"), "w+") as f_2:
     f_1.write("DROP TABLE IF EXISTS `popular_rank`;\n")
     f_1.write("CREATE TABLE `popular_rank` (\n" + \
             "  `timestamp` char(14) DEFAULT NULL,\n" + \
