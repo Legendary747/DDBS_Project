@@ -121,6 +121,36 @@ def gen_an_article (i):
             "\"" + article["image"] + "\", " + \
             "\"" + article["video"] + "\")";
 
+time_within_day = 1516332287000 - 1000 * 60 * 60 * 24
+time_within_week = 1516332287000 - 1000 * 60 * 60 * 24 * 7
+time_within_month = 1516332287000 - 1000 * 60 * 60 * 24 * 30
+month_rank = {}
+week_rank = {}
+day_rank = {}
+def calc_popular_index(readNum, commentNum, agreeNum, shareNum):
+    return readNum / 100 * 0.4 + commentNum * 0.3 + agreeNum * 0.2 + shareNum * 0.1
+
+# This function is called for each Read entry generated
+def calc_popular_rank(read_entry):
+    # If the read entry is not within a month, return
+    if read_entry['timestamp'] > str(time_within_month):
+        score = calc_popular_index(int(read_entry['readTimeLength']), int(read_entry['agreeOrNot']), int(read_entry['commentOrNot']), int(read_entry['shareOrNot']))
+        if month_rank.get(read_entry['aid']) is None:
+            month_rank[read_entry['aid']] = score
+        else:
+            month_rank[read_entry['aid']] += score
+        if read_entry['timestamp'] > str(time_within_week):
+            if week_rank.get(read_entry['aid']) is None:
+                week_rank[read_entry['aid']] = score
+            else:
+                week_rank[read_entry['aid']] += score
+            if read_entry['timestamp'] > str(time_within_day):
+                if day_rank.get(read_entry['aid']) is None:
+                    day_rank[read_entry['aid']] = score
+                else:
+                    day_rank[read_entry['aid']] += score
+    else:
+        return
 # user in Beijing read/agree/comment/share an english article with the probability 0.6/0.2/0.2/0.1
 # user in Hong Kong read/agree/comment/share an Chinese article with the probability 0.8/0.2/0.2/0.1
 p = {}
@@ -152,6 +182,7 @@ def gen_an_read (i):
         read["shareOrNot"] = "1" if random.random() < ps[3] else "0"
         read["commentDetail"] = "comments to this article: (" + read["uid"] + "," + read["aid"] + ")" 
     update_be_read(read)
+    calc_popular_rank(read)
     return "(" +  \
             "\"" + read["timestamp"] + "\", " + \
             "\"" + read["id"] + "\", " + \
@@ -162,6 +193,8 @@ def gen_an_read (i):
             "\"" + read["commentOrNot"] + "\", " + \
             "\"" + read["shareOrNot"] + "\", " + \
             "\"" + read["commentDetail"] + "\")"
+
+
 
 with open("user_beijing.sql", "w+") as f_beijing, open("user_hongkong.sql", "w+") as f_hongkong:
     f_beijing.write("DROP TABLE IF EXISTS `user`;\n")
@@ -339,3 +372,55 @@ with open("be_read.sql", "w+") as f:
                 "\"" + ','.join(be_read_entry['shareUidList']) + "\")" + end_char + "\n")
     f.write("UNLOCK TABLES;\n\n\n")
 
+# Function to get top 5 articles from a rank dictionary
+def get_top_5_articles(rank_dict):
+    return sorted(rank_dict.items(), key=lambda x: x[1], reverse=True)[:5]
+def get_top_5_article_ids(top_5):
+    top_5_ids = [aid for aid, _ in top_5]
+    return '{' + ', '.join(top_5_ids) + '}'
+
+# Get top 5 articles for each granularity
+top_5_month = get_top_5_articles(month_rank)
+top_5_week = get_top_5_articles(week_rank)
+top_5_day = get_top_5_articles(day_rank)
+
+# Also write the popular rank data to SQL
+with open("popular_rank_1.sql", "w+") as f_1, open("popular_rank_2.sql", "w+") as f_2:
+    f_1.write("DROP TABLE IF EXISTS `popular_rank`;\n")
+    f_1.write("CREATE TABLE `popular_rank` (\n" + \
+            "  `timestamp` char(14) DEFAULT NULL,\n" + \
+            "  `id` char(7) DEFAULT NULL,\n" + \
+            "  `temporalGranularity` char(8) DEFAULT NULL,\n" + \
+            "  `articleAidList` varchar(1000) DEFAULT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n\n")
+    f_1.write("LOCK TABLES `popular_rank` WRITE;\n")
+    f_1.write("INSERT INTO `popular_rank` VALUES\n")
+    # Write top 5 daily rank
+    print(top_5_day)
+    f_1.write("  (" + \
+            "\"" + str(time_within_day) + "\", " + \
+            "\"" + str(1) + "\", " + \
+            "\"" + "day" + "\", " + \
+            "\"" + get_top_5_article_ids(top_5_day) + "\");\n")
+    f_1.write("UNLOCK TABLES;\n\n\n")
+
+    f_2.write("DROP TABLE IF EXISTS `popular_rank`;\n")
+    f_2.write("CREATE TABLE `popular_rank` (\n" + \
+            "  `timestamp` char(14) DEFAULT NULL,\n" + \
+            "  `id` char(7) DEFAULT NULL,\n" + \
+            "  `temporalGranularity` char(8) DEFAULT NULL,\n" + \
+            "  `articleAidList` varchar(1000) DEFAULT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n\n")
+    f_2.write("LOCK TABLES `popular_rank` WRITE;\n")
+    f_2.write("INSERT INTO `popular_rank` VALUES\n")
+    # Write top 5 week rank
+    f_2.write("  (" + \
+        "\"" + str(time_within_week) + "\", " + \
+        "\"" + str(2) + "\", " + \
+        "\"" + "week" + "\", " + \
+        "\"" + get_top_5_article_ids(top_5_week) + "\"),\n")
+    # Write top 5 month rank
+    f_2.write("  (" + \
+        "\"" + str(time_within_month) + "\", " + \
+        "\"" + str(3) + "\", " + \
+        "\"" + "month" + "\", " + \
+        "\"" + get_top_5_article_ids(top_5_month) + "\");\n")
+    f_2.write("UNLOCK TABLES;\n\n\n")
