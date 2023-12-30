@@ -259,9 +259,9 @@ with open("user_beijing.sql", "w+") as f_beijing, open("user_hongkong.sql", "w+"
     f_beijing.write("UNLOCK TABLES;\n\n\n")
     f_hongkong.write("UNLOCK TABLES;\n\n\n")
 
-with open("article.sql", "w+") as f:
-    f.write("DROP TABLE IF EXISTS `article`;\n")
-    f.write("CREATE TABLE `article` (\n" + \
+with open("article_1.sql", "w+") as f_1, open("article_2.sql", "w+") as f_2:
+    f_1.write("DROP TABLE IF EXISTS `article`;\n")
+    f_1.write("CREATE TABLE `article` (\n" + \
             "  `timestamp` char(14) DEFAULT NULL,\n" + \
             "  `id` char(7) DEFAULT NULL,\n" + \
             "  `aid` char(7) DEFAULT NULL,\n" + \
@@ -274,12 +274,44 @@ with open("article.sql", "w+") as f:
             "  `text` char(31) DEFAULT NULL,\n" +  \
             "  `image` char(32) DEFAULT NULL,\n" +  \
             "  `video` char(32) DEFAULT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n\n")
-    f.write("LOCK TABLES `article` WRITE;\n")
-    f.write("INSERT INTO `article` VALUES\n")
-    for i in range (ARTICLES_NUM-1):
-        f.write("  " + gen_an_article(i) + ",\n")
-    f.write("  " + gen_an_article(ARTICLES_NUM-1) + ";\n")
-    f.write("UNLOCK TABLES;\n\n\n")
+    f_1.write("LOCK TABLES `article` WRITE;\n")
+    f_1.write("INSERT INTO `article` VALUES\n")
+    
+    f_2.write("DROP TABLE IF EXISTS `article`;\n")
+    f_2.write("CREATE TABLE `article` (\n" + \
+            "  `timestamp` char(14) DEFAULT NULL,\n" + \
+            "  `id` char(7) DEFAULT NULL,\n" + \
+            "  `aid` char(7) DEFAULT NULL,\n" + \
+            "  `title` char(15) DEFAULT NULL,\n" +  \
+            "  `category` char(11) DEFAULT NULL,\n" +  \
+            "  `abstract` char(30) DEFAULT NULL,\n" +  \
+            "  `articleTags` char(14) DEFAULT NULL,\n" +  \
+            "  `authors` char(13) DEFAULT NULL,\n" +  \
+            "  `language` char(3) DEFAULT NULL,\n" +  \
+            "  `text` char(31) DEFAULT NULL,\n" +  \
+            "  `image` char(32) DEFAULT NULL,\n" +  \
+            "  `video` char(32) DEFAULT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n\n")
+    f_2.write("LOCK TABLES `article` WRITE;\n")
+    f_2.write("INSERT INTO `article` VALUES\n")
+    article_one_last = None
+    article_two_last = None
+    for i in range (ARTICLES_NUM):
+        if (aid_category[str(i)] == 'tech'):
+            if article_two_last is not None:
+                f_2.write("  " + article_two_last + ",\n")
+            article_two_last = gen_an_article(i)
+        else:
+            if article_one_last is not None:
+                f_1.write("  " + article_one_last + ",\n")
+            article_one_last = gen_an_article(i)
+
+    # Write the last article for each file
+    if article_one_last is not None:
+        f_1.write("  " + article_one_last + ";\n")
+    if article_two_last is not None:
+        f_2.write("  " + article_two_last + ";\n")
+    f_1.write("UNLOCK TABLES;\n\n\n")
+    f_2.write("UNLOCK TABLES;\n\n\n")
 
 # aid : Be-Read
 be_read_dict = {}
@@ -316,9 +348,9 @@ def update_be_read(read_entry):
         be_read_entry['shareUidList'].add(uid)
     be_read_dict[aid] = be_read_entry      
 
-with open("user_read.sql", "w+") as f:
-    f.write("DROP TABLE IF EXISTS `user_read`;\n")
-    f.write("CREATE TABLE `user_read` (\n" + \
+with open("user_read_1.sql", "w+") as f_1, open("user_read_2.sql", "w+") as f_2:
+    f_1.write("DROP TABLE IF EXISTS `user_read`;\n")
+    f_1.write("CREATE TABLE `user_read` (\n" + \
             "  `timestamp` char(14) DEFAULT NULL,\n" + \
             "  `id` char(7) DEFAULT NULL,\n" + \
             "  `uid` char(5) DEFAULT NULL,\n" + \
@@ -328,15 +360,40 @@ with open("user_read.sql", "w+") as f:
             "  `commentOrNot` char(2) DEFAULT NULL,\n" +  \
             "  `shareOrNot` char(2) DEFAULT NULL,\n" +  \
             "  `commentDetail` char(100) DEFAULT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n\n")
+    f_2.write("DROP TABLE IF EXISTS `user_read`;\n")
+    f_2.write("CREATE TABLE `user_read` (\n" + \
+            "  `timestamp` char(14) DEFAULT NULL,\n" + \
+            "  `id` char(7) DEFAULT NULL,\n" + \
+            "  `uid` char(5) DEFAULT NULL,\n" + \
+            "  `aid` char(7) DEFAULT NULL,\n" + \
+            "  `readTimeLength` char(3) DEFAULT NULL,\n" +  \
+            "  `agreeOrNot` char(2) DEFAULT NULL,\n" +  \
+            "  `commentOrNot` char(2) DEFAULT NULL,\n" +  \
+            "  `shareOrNot` char(2) DEFAULT NULL,\n" +  \
+            "  `commentDetail` char(100) DEFAULT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n\n")
+    f_1.write("LOCK TABLES `user_read` WRITE;\n")
+    f_1.write("INSERT INTO `user_read` VALUES\n")
+    f_2.write("LOCK TABLES `user_read` WRITE;\n")
+    f_2.write("INSERT INTO `user_read` VALUES\n")
+    read_one_last = None
+    read_two_last = None
 
-    f.write("LOCK TABLES `user_read` WRITE;\n")
-    f.write("INSERT INTO `user_read` VALUES\n")
-    for i in range (READS_NUM-1):
+    for i in range (READS_NUM):
         read_entry = gen_an_read(i)
-        f.write("  " + read_entry + ",\n")
-    read_entry = gen_an_read(READS_NUM-1)
-    f.write("  " + gen_an_read(READS_NUM-1) + ";\n")
-    f.write("UNLOCK TABLES;\n\n\n")
+        if (uid_region[str(i)] == 'Beijing'):
+            if read_one_last is not None:
+                f_1.write("  " + read_one_last + ",\n")
+            read_one_last = read_entry
+        else:
+            if read_two_last is not None:
+                f_2.write("  " + read_two_last + ",\n")
+            read_two_last = read_entry
+    if read_one_last is not None:
+        f_1.write("  " + read_one_last + ";\n")
+    if read_two_last is not None:
+        f_2.write("  " + read_two_last + ";\n")
+    f_1.write("UNLOCK TABLES;\n\n\n")
+    f_2.write("UNLOCK TABLES;\n\n\n")
 
 # After all Read entries are processed, write Be-Read data to SQL
 with open("be_read_1.sql", "w+") as f_1, open("be_read_2.sql", "w+") as f_2:
