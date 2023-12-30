@@ -8,7 +8,7 @@ CREATE TABLE `popular_rank` (
 
 LOCK TABLES `popular_rank` WRITE;
 INSERT INTO `popular_rank` VALUES
-  ("1516245887000", "1", "day", "{2877, 9092, 9370, 5289, 6649}");
+  ("1516245887000", "1", "day", "{7862, 123, 1732, 7559, 9236}");
 UNLOCK TABLES;
 
 

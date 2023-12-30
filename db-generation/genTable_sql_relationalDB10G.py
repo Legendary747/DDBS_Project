@@ -59,6 +59,7 @@ def gen_an_user (i):
 # en:50%    zh:50%
 # 50 tags
 # 2000 authors
+aid_category = {}
 def gen_an_article (i):
     timeBegin = 1506000000000
     article = {}
@@ -81,6 +82,7 @@ def gen_an_article (i):
     categories = ['business', 'entertainment', 'sport', 'tech']
     random_category = categories[random.randint(0,3)]
     files = os.listdir('./bbc_news_texts/' + random_category +'/')
+    aid_category[str(i)] = random_category
     size = len(files)
     random_news = files[random.randint(0,size-1)]
     copyfile('bbc_news_texts/' + random_category +'/' +random_news, path+"/text_a"+str(i)+'.txt')
@@ -337,9 +339,9 @@ with open("user_read.sql", "w+") as f:
     f.write("UNLOCK TABLES;\n\n\n")
 
 # After all Read entries are processed, write Be-Read data to SQL
-with open("be_read.sql", "w+") as f:
-    f.write("DROP TABLE IF EXISTS `be_read`;\n")
-    f.write("CREATE TABLE `be_read` (\n" + \
+with open("be_read_1.sql", "w+") as f_1, open("be_read_2.sql", "w+") as f_2:
+    f_1.write("DROP TABLE IF EXISTS `be_read`;\n")
+    f_1.write("CREATE TABLE `be_read` (\n" + \
             "  `timestamp` char(14) DEFAULT NULL,\n" + \
             "  `id` char(7) DEFAULT NULL,\n" + \
             "  `aid` char(7) DEFAULT NULL,\n" + \
@@ -351,27 +353,87 @@ with open("be_read.sql", "w+") as f:
             "  `agreeUidList` varchar(1000) DEFAULT NULL,\n" + \
             "  `shareNum` char(5) DEFAULT NULL,\n" + \
             "  `shareUidList` varchar(1000) DEFAULT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n\n")
-    f.write("LOCK TABLES `be_read` WRITE;\n")
-    f.write("INSERT INTO `be_read` VALUES\n")
+    f_2.write("DROP TABLE IF EXISTS `be_read`;\n")
+    f_2.write("CREATE TABLE `be_read` (\n" + \
+            "  `timestamp` char(14) DEFAULT NULL,\n" + \
+            "  `id` char(7) DEFAULT NULL,\n" + \
+            "  `aid` char(7) DEFAULT NULL,\n" + \
+            "  `readNum` char(5) DEFAULT NULL,\n" + \
+            "  `readUidList` varchar(1000) DEFAULT NULL,\n" + \
+            "  `commentNum` char(5) DEFAULT NULL,\n" + \
+            "  `commentUidList` varchar(1000) DEFAULT NULL,\n" + \
+            "  `agreeNum` char(5) DEFAULT NULL,\n" + \
+            "  `agreeUidList` varchar(1000) DEFAULT NULL,\n" + \
+            "  `shareNum` char(5) DEFAULT NULL,\n" + \
+            "  `shareUidList` varchar(1000) DEFAULT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8;\n\n")
+    f_1.write("LOCK TABLES `be_read` WRITE;\n")
+    f_1.write("INSERT INTO `be_read` VALUES\n")
+    f_2.write("LOCK TABLES `be_read` WRITE;\n")
+    f_2.write("INSERT INTO `be_read` VALUES\n")
     be_read_items = list(be_read_dict.items())
-    for i, (aid, be_read_entry) in enumerate(be_read_items):
-        # Determine if it's the last item
-        end_char = "," if i < len(be_read_items) - 1 else ";"
-
-        f.write("  (" + \
-                "\"" + be_read_entry['timestamp'] + "\", " + \
-                "\"" + be_read_entry['id'] + "\", " + \
-                "\"" + be_read_entry['aid'] + "\", " + \
-                "\"" + str(be_read_entry['readNum']) + "\", " + \
-                "\"" + ','.join(be_read_entry['readUidList']) + "\", " + \
-                "\"" + str(be_read_entry['commentNum']) + "\", " + \
-                "\"" + ','.join(be_read_entry['commentUidList']) + "\", " + \
-                "\"" + str(be_read_entry['agreeNum']) + "\", " + \
-                "\"" + ','.join(be_read_entry['agreeUidList']) + "\", " + \
-                "\"" + str(be_read_entry['shareNum']) + "\", " + \
-                "\"" + ','.join(be_read_entry['shareUidList']) + "\")" + end_char + "\n")
-    f.write("UNLOCK TABLES;\n\n\n")
-
+    be_read_one_last = None
+    be_read_two_last = None
+    for i in range(len(be_read_items) - 1):
+        be_read_entry = be_read_items[i][1]
+        if aid_category[be_read_entry['aid']] == 'tech':
+            if be_read_two_last is not None:
+                f_2.write("  (" + \
+                "\"" + be_read_two_last['timestamp'] + "\", " + \
+                "\"" + be_read_two_last['id'] + "\", " + \
+                "\"" + be_read_two_last['aid'] + "\", " + \
+                "\"" + str(be_read_two_last['readNum']) + "\", " + \
+                "\"" + ','.join(be_read_two_last['readUidList']) + "\", " + \
+                "\"" + str(be_read_two_last['commentNum']) + "\", " + \
+                "\"" + ','.join(be_read_two_last['commentUidList']) + "\", " + \
+                "\"" + str(be_read_two_last['agreeNum']) + "\", " + \
+                "\"" + ','.join(be_read_two_last['agreeUidList']) + "\", " + \
+                "\"" + str(be_read_two_last['shareNum']) + "\", " + \
+                "\"" + ','.join(be_read_two_last['shareUidList']) + "\"),\n")
+            be_read_two_last = be_read_entry
+        else:
+            if be_read_one_last is not None:
+                f_1.write("  (" + \
+                "\"" + be_read_one_last['timestamp'] + "\", " + \
+                "\"" + be_read_one_last['id'] + "\", " + \
+                "\"" + be_read_one_last['aid'] + "\", " + \
+                "\"" + str(be_read_one_last['readNum']) + "\", " + \
+                "\"" + ','.join(be_read_one_last['readUidList']) + "\", " + \
+                "\"" + str(be_read_one_last['commentNum']) + "\", " + \
+                "\"" + ','.join(be_read_one_last['commentUidList']) + "\", " + \
+                "\"" + str(be_read_one_last['agreeNum']) + "\", " + \
+                "\"" + ','.join(be_read_one_last['agreeUidList']) + "\", " + \
+                "\"" + str(be_read_one_last['shareNum']) + "\", " + \
+                "\"" + ','.join(be_read_one_last['shareUidList']) + "\"),\n")
+            be_read_one_last = be_read_entry
+    # Write the last entry for each file
+    if be_read_one_last is not None:
+        f_1.write("  (" + \
+                "\"" + be_read_one_last['timestamp'] + "\", " + \
+                "\"" + be_read_one_last['id'] + "\", " + \
+                "\"" + be_read_one_last['aid'] + "\", " + \
+                "\"" + str(be_read_one_last['readNum']) + "\", " + \
+                "\"" + ','.join(be_read_one_last['readUidList']) + "\", " + \
+                "\"" + str(be_read_one_last['commentNum']) + "\", " + \
+                "\"" + ','.join(be_read_one_last['commentUidList']) + "\", " + \
+                "\"" + str(be_read_one_last['agreeNum']) + "\", " + \
+                "\"" + ','.join(be_read_one_last['agreeUidList']) + "\", " + \
+                "\"" + str(be_read_one_last['shareNum']) + "\", " + \
+                "\"" + ','.join(be_read_one_last['shareUidList']) + "\");\n")
+    if be_read_two_last is not None:
+            f_2.write("  (" + \
+                "\"" + be_read_two_last['timestamp'] + "\", " + \
+                "\"" + be_read_two_last['id'] + "\", " + \
+                "\"" + be_read_two_last['aid'] + "\", " + \
+                "\"" + str(be_read_two_last['readNum']) + "\", " + \
+                "\"" + ','.join(be_read_two_last['readUidList']) + "\", " + \
+                "\"" + str(be_read_two_last['commentNum']) + "\", " + \
+                "\"" + ','.join(be_read_two_last['commentUidList']) + "\", " + \
+                "\"" + str(be_read_two_last['agreeNum']) + "\", " + \
+                "\"" + ','.join(be_read_two_last['agreeUidList']) + "\", " + \
+                "\"" + str(be_read_two_last['shareNum']) + "\", " + \
+                "\"" + ','.join(be_read_two_last['shareUidList']) + "\");\n")
+    f_1.write("UNLOCK TABLES;\n\n\n")
+    f_2.write("UNLOCK TABLES;\n\n\n")
 # Function to get top 5 articles from a rank dictionary
 def get_top_5_articles(rank_dict):
     return sorted(rank_dict.items(), key=lambda x: x[1], reverse=True)[:5]
