@@ -26,4 +26,19 @@ public class UserRead {
     private String commentOrNot;
     private String shareOrNot;
     private String commentDetail;
+
+    @Override
+    public String toString() {
+        return "UserRead{" +
+                "id='" + id + '\'' +
+                ", timestamp='" + timestamp + '\'' +
+                ", uid='" + uid + '\'' +
+                ", aid='" + aid + '\'' +
+                ", readTimeLength='" + readTimeLength + '\'' +
+                ", agreeOrNot='" + agreeOrNot + '\'' +
+                ", commentOrNot='" + commentOrNot + '\'' +
+                ", shareOrNot='" + shareOrNot + '\'' +
+                ", commentDetail='" + commentDetail + '\'' +
+                '}';
+    }
 }

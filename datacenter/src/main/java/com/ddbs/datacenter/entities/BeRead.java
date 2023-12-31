@@ -28,4 +28,21 @@ public class BeRead {
     private String agreeUidList;
     private String shareNum;
     private String shareUidList;
+
+    @Override
+    public String toString() {
+        return "BeRead{" +
+                "id='" + id + '\'' +
+                ", timestamp='" + timestamp + '\'' +
+                ", aid='" + aid + '\'' +
+                ", readNum='" + readNum + '\'' +
+                ", readUidList='" + readUidList + '\'' +
+                ", commentNum='" + commentNum + '\'' +
+                ", commentUidList='" + commentUidList + '\'' +
+                ", agreeNum='" + agreeNum + '\'' +
+                ", agreeUidList='" + agreeUidList + '\'' +
+                ", shareNum='" + shareNum + '\'' +
+                ", shareUidList='" + shareUidList + '\'' +
+                '}';
+    }
 }

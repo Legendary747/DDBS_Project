@@ -10,6 +10,8 @@ services:
     volumes:
       - ../sql_data:/sql_data
       - mysql-primary-1-data:/var/lib/mysql
+    networks:
+      - mynetwork
   mysql-primary-2:
     image: mysql:5.7
     command: --max_allowed_packet=256M
@@ -20,6 +22,8 @@ services:
     volumes:
       - ../sql_data:/sql_data
       - mysql-primary-2-data:/var/lib/mysql
+    networks:
+      - mynetwork
   mysql-backup-1:
     image: mysql:5.7
     command: --max_allowed_packet=256M
@@ -30,6 +34,8 @@ services:
     volumes:
       - ../sql_data:/sql_data
       - mysql-backup-1-data:/var/lib/mysql
+    networks:
+      - mynetwork
   mysql-backup-2:
     image: mysql:5.7
     command: --max_allowed_packet=256M
@@ -40,6 +46,8 @@ services:
     volumes:
       - ../sql_data:/sql_data
       - mysql-backup-2-data:/var/lib/mysql
+    networks:
+      - mynetwork
   # Hadoop NameNode (master node)
   namenode:
     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
@@ -52,6 +60,8 @@ services:
       - hadoop.env
     ports:
       - "9870:9870"
+    networks:
+      - mynetwork
   # Hadoop DataNode (worker node)
   datanode:
     image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
@@ -62,6 +72,18 @@ services:
       SERVICE_PRECONDITION: "namenode:9870"
     env_file:
       - hadoop.env
+    networks:
+      - mynetwork
+  myapp:
+    image: openjdk:17
+    volumes:
+      - ../datacenter/build/libs:/app
+    working_dir: /app
+    command: java -jar myapplication.jar
+    ports:
+      - "8080:8080"
+    networks:
+      - mynetwork
 
 volumes:
   mysql-primary-1-data:
@@ -70,3 +92,7 @@ volumes:
   mysql-backup-2-data:
   hadoop_namenode:
   hadoop_datanode:
+
+networks:
+  mynetwork:
+    driver: bridge

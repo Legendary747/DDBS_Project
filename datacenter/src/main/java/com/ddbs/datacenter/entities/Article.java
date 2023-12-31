@@ -31,4 +31,34 @@ public class Article {
     private String text;
     private String image;
     private String video;
+
+    public String getId() {
+        return id;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public String getVideo() {
+        return video;
+    }
+
+    @Override
+    public String toString() {
+        return "Article{" +
+                "aid='" + aid + '\'' +
+                ", timestamp='" + timestamp + '\'' +
+                ", id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", category='" + category + '\'' +
+                ", abstractText='" + abstractText + '\'' +
+                ", articleTags='" + articleTags + '\'' +
+                ", authors='" + authors + '\'' +
+                ", language='" + language + '\'' +
+                ", text='" + text + '\'' +
+                ", image='" + image + '\'' +
+                ", video='" + video + '\'' +
+                '}';
+    }
 }

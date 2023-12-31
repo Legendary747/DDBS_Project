@@ -18,13 +18,21 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-logging'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation 'org.springframework.data:spring-data-hadoop:2.5.0.RELEASE'
-	// MySQL JDBC driver
 	implementation 'mysql:mysql-connector-java:8.0.27'
-	// Annotation for less code
 	implementation 'org.projectlombok:lombok'
+	// Hadoop Client
+	implementation 'org.apache.hadoop:hadoop-client:2.7.3'
+	// Log4j
+	implementation 'log4j:log4j:1.2.17'
+}
+
+bootJar {
+	archiveFileName = 'myapplication.jar'
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.named('test') {

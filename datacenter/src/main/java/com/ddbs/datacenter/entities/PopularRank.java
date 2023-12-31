@@ -21,4 +21,14 @@ public class PopularRank {
     private String timestamp;
     private String temporalGranularity;
     private String articleAidList;
+
+    @Override
+    public String toString() {
+        return "PopularRank{" +
+                "id='" + id + '\'' +
+                ", timestamp='" + timestamp + '\'' +
+                ", temporalGranularity='" + temporalGranularity + '\'' +
+                ", articleAidList='" + articleAidList + '\'' +
+                '}';
+    }
 }
