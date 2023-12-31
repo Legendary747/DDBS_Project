@@ -40,9 +40,33 @@ services:
     volumes:
       - ../sql_data:/sql_data
       - mysql-backup-2-data:/var/lib/mysql
+  # Hadoop NameNode (master node)
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    volumes:
+      - ../sql_data/articles:/articles
+      - hadoop_namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=test
+    env_file:
+      - hadoop.env
+    ports:
+      - "9870:9870"
+  # Hadoop DataNode (worker node)
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    volumes:
+      - ../sql_data/articles:/articles
+      - hadoop_datanode:/hadoop/dfs/data
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870"
+    env_file:
+      - hadoop.env
 
 volumes:
   mysql-primary-1-data:
   mysql-primary-2-data:
   mysql-backup-1-data:
   mysql-backup-2-data:
+  hadoop_namenode:
+  hadoop_datanode:

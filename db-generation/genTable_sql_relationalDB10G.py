@@ -99,19 +99,16 @@ def gen_an_article (i):
     article["image"] = image_str
 
     for j in range(image_num):
-        a = 1
-        # copyfile('./image/' + str(random.randint(0,599))+'.jpg',path+'/image_a'+str(i)+'_'+str(j)+'.jpg')
+        copyfile('./image/' + str(random.randint(0,599))+'.jpg',path+'/image_a'+str(i)+'_'+str(j)+'.jpg')
 
     # create video
     if random.random() < 0.05:
         #has one video
         article["video"] = "video_a"+str(i)+'_video.flv'
         if random.random()<0.5:
-            a = 1
-            # copyfile('./video/video1.flv',path+"/video_a"+str(i)+'_video.flv')
+            copyfile('./video/video1.flv',path+"/video_a"+str(i)+'_video.flv')
         else:
-            a = 1
-            # copyfile('./video/video2.flv',path+"/video_a"+str(i)+'_video.flv')
+            copyfile('./video/video2.flv',path+"/video_a"+str(i)+'_video.flv')
     else:
         article["video"] = ""
 
