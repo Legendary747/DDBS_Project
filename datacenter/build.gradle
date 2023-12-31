@@ -23,6 +23,8 @@ dependencies {
 	implementation 'org.springframework.data:spring-data-hadoop:2.5.0.RELEASE'
 	// MySQL JDBC driver
 	implementation 'mysql:mysql-connector-java:8.0.27'
+	// Annotation for less code
+	implementation 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {

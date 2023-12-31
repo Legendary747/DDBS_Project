@@ -13,22 +13,20 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "user")
-public class User {
+@Table(name = "article")
+public class Article {
 
     @Id
-    private String uid;
+    private String aid;
     private String timestamp;
     private String id;
-    private String name;
-    private String gender;
-    private String email;
-    private String phone;
-    private String dept;
-    private String grade;
+    private String title;
+    private String category;
+    private String abstractText;
+    private String articleTags;
+    private String authors;
     private String language;
-    private String region;
-    private String role;
-    private String preferTags;
-    private String obtainedCredits;
+    private String text;
+    private String image;
+    private String video;
 }
