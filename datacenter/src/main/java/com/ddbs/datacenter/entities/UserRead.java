@@ -27,6 +27,42 @@ public class UserRead {
     private String shareOrNot;
     private String commentDetail;
 
+    public String getId() {
+        return id;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public String getAid() {
+        return aid;
+    }
+
+    public String getReadTimeLength() {
+        return readTimeLength;
+    }
+
+    public String getAgreeOrNot() {
+        return agreeOrNot;
+    }
+
+    public String getCommentOrNot() {
+        return commentOrNot;
+    }
+
+    public String getShareOrNot() {
+        return shareOrNot;
+    }
+
+    public String getCommentDetail() {
+        return commentDetail;
+    }
+
     @Override
     public String toString() {
         return "UserRead{" +

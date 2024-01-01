@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import TopArticles from './components/TopArticles.vue'; // Your top articles component
-import ArticleDetails from './components/ArticleDetails.vue'; // Your article details component
+import TopArticles from './components/TopArticles.vue';
+import ArticleDetails from './components/ArticleDetails.vue';
+import UserPage from './components/UserPage.vue'; // Import the UserPage component
 
 const routes = [
     {
@@ -12,13 +13,19 @@ const routes = [
         path: '/article/:id',
         name: 'ArticleDetails',
         component: ArticleDetails,
-        props: true // This allows us to pass the :id as a prop to the component
+        props: true // Pass the :id as a prop
+    },
+    {
+        path: '/user/:id',
+        name: 'UserPage',
+        component: UserPage,
+        props: true // Pass the :id as a prop
     },
     // Add other routes as needed
 ];
 
 const router = createRouter({
-    history: createWebHistory(process.env.BASE_URL), // Use the environment base URL
+    history: createWebHistory(process.env.BASE_URL),
     routes,
 });
 

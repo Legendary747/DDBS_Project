@@ -1,4 +1,4 @@
-package com.ddbs.datacenter.repository.db2;
+package com.ddbs.datacenter.repository.db4;
 
 import com.ddbs.datacenter.entities.UserRead;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UserReadTwoRepository extends JpaRepository<UserRead, String> {
+public interface UserReadFourRepository extends JpaRepository<UserRead, String> {
 
     @Query(value = "SELECT * FROM user_read WHERE uid = ?1", nativeQuery = true)
     List<UserRead> findByUid(String userId);

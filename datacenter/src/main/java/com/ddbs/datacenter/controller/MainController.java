@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.*;
 
 @RestController
-public class TestController {
+public class MainController {
 
     @Autowired
     UserTwoRepository userTwoRepository;
@@ -140,6 +140,7 @@ public class TestController {
         Article a1 = articleOneRepository.findById(articleId).orElse(null);
         Article a2 = articleTwoRepository.findById(articleId).orElse(null);
         Article article = a1 == null ? a2 : a1;
+        System.out.println(article);
         if (article == null) return null;
         return ResponseEntity.ok(article);
     }
@@ -166,6 +167,27 @@ public class TestController {
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving images");
         }
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<User> getUser(@PathVariable String userId) {
+        User u1 = userOneRepository.findById(userId).orElse(null);
+        User u2 = userTwoRepository.findById(userId).orElse(null);
+        User user = u1 == null ? u2 : u1;
+        if (user == null) return null;
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/user-read/{userId}")
+    public ResponseEntity<List<String>> getUserRead(@PathVariable String userId) {
+        List<UserRead> userRead1 = userReadOneRepository.findByUid(userId);
+        List<UserRead> userRead2 = userReadTwoRepository.findByUid(userId);
+        List<UserRead> userRead = new ArrayList<>();
+        userRead.addAll(userRead1);
+        userRead.addAll(userRead2);
+        List<String> readArticleIds = userRead.stream().map(UserRead::getAid).toList();
+
+        return ResponseEntity.ok(readArticleIds);
     }
 
     private List<String> getImagePathsForArticle(String articleId) {

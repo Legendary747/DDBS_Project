@@ -37,6 +37,62 @@ public class User {
     @Column(name = "obtainedCredits")
     private String obtainedCredits;
 
+    public String getUid() {
+        return uid;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getDept() {
+        return dept;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public String getPreferTags() {
+        return preferTags;
+    }
+
+    public String getObtainedCredits() {
+        return obtainedCredits;
+    }
+
     @Override
     public String toString() {
         return "User{" +

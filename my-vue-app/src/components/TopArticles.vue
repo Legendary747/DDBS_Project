@@ -1,5 +1,12 @@
 <template>
   <div class="top-articles-container">
+    <div class="home-and-search">
+      <el-button type="warning" @click="goToHome">Home</el-button>
+      <el-button type="success" v-if="showSearchButton" @click="togglePopup">Search</el-button>
+      <PopUp ref="popupComponent" @close="handlePopupClose" />
+    </div>
+  </div>
+  <div class="top-articles-container">
     <el-row type="flex" justify="center" align="middle" class="header-row">
       <span class="header-title">{{ capitalizedMode }} Top Articles</span>
     </el-row>
@@ -31,17 +38,19 @@ import axios from 'axios';
 import { ElButton, ElCard, ElCol, ElRow, ElIcon } from 'element-plus';
 import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
 import defaultArticleImage from '@/assets/default-article-image.jpeg';
+import PopUp from '@/components/PopUp.vue';
 
 export default {
   name: 'TopArticles',
   components: {
+    PopUp,
     ElButton,
     ElCard,
     ElCol,
     ElRow,
     ElIcon,
     ArrowLeft,
-    ArrowRight
+    ArrowRight,
   },
   data() {
     return {
@@ -51,7 +60,8 @@ export default {
         weekly: [],
         monthly: []
       }, // This will hold articles for each mode
-      defaultImageUrl: defaultArticleImage
+      defaultImageUrl: defaultArticleImage,
+      showSearchButton: true,
     };
   },
   computed: {
@@ -63,6 +73,16 @@ export default {
     }
   },
   methods: {
+    goToHome() {
+      this.$router.push('/');
+    },
+    togglePopup() {
+      this.showSearchButton = false;
+      this.$refs.popupComponent.togglePopup();
+    },
+    handlePopupClose() {
+      this.showSearchButton = true;
+    },
     switchMode(direction) {
       if (direction === 'next') {
         this.mode = this.mode === 'daily' ? 'weekly' : this.mode === 'weekly' ? 'monthly' : 'daily';
@@ -106,7 +126,6 @@ export default {
           });
     }
   },
-
   mounted() {
     this.fetchArticles();
   }
@@ -177,8 +196,9 @@ export default {
   font-size: 1.5rem;
   font-weight: bold;
 }
-
-.el-button {
-  flex: none;
+.home-and-search {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 </style>
