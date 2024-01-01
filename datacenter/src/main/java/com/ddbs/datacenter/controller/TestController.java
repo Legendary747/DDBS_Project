@@ -140,6 +140,7 @@ public class TestController {
         try {
             List<String> imagePaths = getImagePathsForArticle(articleId); // Implement this method to get image paths
             if (imagePaths == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Article not found");
+            System.out.println(imagePaths);
             List<String> base64Images = readImagesFromHdfs(imagePaths);
             return ResponseEntity.ok(base64Images);
         } catch (IOException e) {
