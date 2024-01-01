@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 @RestController
 public class TestController {
@@ -47,6 +45,62 @@ public class TestController {
     UserReadTwoRepository userReadTwoRepository;
     @Autowired
     UserReadOneRepository userReadOneRepository;
+
+    public String[] returnArticleIds(String articleIds) {
+        String[] ids = articleIds
+                .replace("{","")
+                .replace("}","")
+                .split(", ");
+        return ids;
+    }
+    @GetMapping("/top_articles")
+    public ResponseEntity<?> getTopArticles() {
+        // day
+        List<PopularRank> popularRanks1 = popularRankOneRepository.findAll();
+        PopularRank popularRankDay = popularRanks1.get(0);
+        System.out.println(popularRankDay);
+        // week, month
+        List<PopularRank> popularRanks2 = popularRankTwoRepository.findAll();
+        PopularRank popularRankWeek = popularRanks2.get(0);
+        PopularRank popularRankMonth = popularRanks2.get(1);
+
+        String[] dailyId = returnArticleIds(popularRankDay.getArticleIds());
+        String[] weeklyId = returnArticleIds(popularRankWeek.getArticleIds());
+        String[] monthlyId = returnArticleIds(popularRankMonth.getArticleIds());
+
+        List<Article> dailyArticles = new ArrayList<>();
+        List<Article> weeklyArticles = new ArrayList<>();
+        List<Article> monthlyArticles = new ArrayList<>();
+
+        for (String id : dailyId) {
+            System.out.println(id);
+            Article a1 = articleOneRepository.findById(id).orElse(null);
+            Article a2 = articleTwoRepository.findById(id).orElse(null);
+            Article article = a1 == null ? a2 : a1;
+            System.out.println(article);
+            if (article != null) dailyArticles.add(article);
+        }
+        for (String id : weeklyId) {
+            Article a1 = articleOneRepository.findById(id).orElse(null);
+            Article a2 = articleTwoRepository.findById(id).orElse(null);
+            Article article = a1 == null ? a2 : a1;
+            if (article != null) weeklyArticles.add(article);
+        }
+        for (String id : monthlyId) {
+            Article a1 = articleOneRepository.findById(id).orElse(null);
+            Article a2 = articleTwoRepository.findById(id).orElse(null);
+            Article article = a1 == null ? a2 : a1;
+            if (article != null) monthlyArticles.add(article);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("daily", dailyArticles);
+        response.put("weekly", weeklyArticles);
+        response.put("monthly", monthlyArticles);
+
+        return ResponseEntity.ok(response);
+    }
+
 
     @GetMapping("/test")
     public String test() {

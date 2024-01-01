@@ -1,5 +1,6 @@
 package com.ddbs.datacenter.entities;
 
+import com.google.common.base.Splitter;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -11,7 +12,6 @@ import lombok.Setter;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
 @Setter
 @Table(name = "popular_rank")
 public class PopularRank {
@@ -30,5 +30,9 @@ public class PopularRank {
                 ", temporalGranularity='" + temporalGranularity + '\'' +
                 ", articleAidList='" + articleAidList + '\'' +
                 '}';
+    }
+
+    public String getArticleIds() {
+        return this.articleAidList;
     }
 }

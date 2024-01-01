@@ -12,8 +12,6 @@ import lombok.Setter;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 @Table(name = "article")
 public class Article {
 
@@ -42,6 +40,42 @@ public class Article {
 
     public String getVideo() {
         return video;
+    }
+
+    public String getAid() {
+        return aid;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public String getAbstractText() {
+        return abstractText;
+    }
+
+    public String getArticleTags() {
+        return articleTags;
+    }
+
+    public String getAuthors() {
+        return authors;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public String getText() {
+        return text;
     }
 
     @Override
