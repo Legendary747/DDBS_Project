@@ -84,6 +84,54 @@ services:
       - "8080:8080"
     networks:
       - mynetwork
+  mysql-exporter-1:
+    image: prom/mysqld-exporter
+    command:
+      - "--mysqld.username=root:rootpassword1"
+      - "--mysqld.address=mysql-primary-1:3306"
+    networks:
+      - mynetwork
+    ports:
+      - "9104:9104"
+
+  mysql-exporter-2:
+    image: prom/mysqld-exporter
+    command:
+      - "--mysqld.username=root:rootpassword2"
+      - "--mysqld.address=mysql-primary-2:3306"
+    networks:
+      - mynetwork
+    ports:
+      - "9105:9104"
+
+  mysql-exporter-3:
+    image: prom/mysqld-exporter
+    command:
+      - "--mysqld.username=root:backuppassword1"
+      - "--mysqld.address=mysql-backup-1:3306"
+    networks:
+      - mynetwork
+    ports:
+      - "9106:9104"
+      
+  mysql-exporter-4:
+    image: prom/mysqld-exporter
+    command:
+      - "--mysqld.username=root:backuppassword2"
+      - "--mysqld.address=mysql-backup-2:3306"
+    networks:
+      - mynetwork
+    ports:
+      - "9107:9104"
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - mynetwork
 
 volumes:
   mysql-primary-1-data:
