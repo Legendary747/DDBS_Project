@@ -92,9 +92,6 @@ export default {
     if (videoContainer) {
       videoContainer.appendChild(this.videoElement);
     }
-
-    // Initialize your player here if needed
-    this.initVideoPlayer();
   },
   created() {
     this.fetchArticleDetails();
@@ -118,6 +115,7 @@ export default {
             this.fetchArticleImage(this.articleId);
             // Initialize the video player after fetching article details
             if (this.article.video && flvjs.isSupported()) {
+              console.log("Here!!!!")
               this.initVideoPlayer();
             }
           })
