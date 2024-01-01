@@ -2,6 +2,15 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'mysql'
+  - job_name: 'mysql1'
     static_configs:
-      - targets: ['mysql-exporter-1:9104', 'mysql-exporter-2:9105', 'mysql-exporter-3:9106', 'mysql-exporter-4:9107']
+      - targets: ['mysql-exporter-1:9104']
+  - job_name: 'mysql2'
+    static_configs:
+      - targets: ['mysql-exporter-1:9104']
+  - job_name: 'mysql3'
+    static_configs:
+      - targets: ['mysql-exporter-1:9104']
+  - job_name: 'mysql4'
+    static_configs:
+      - targets: ['mysql-exporter-1:9104']
