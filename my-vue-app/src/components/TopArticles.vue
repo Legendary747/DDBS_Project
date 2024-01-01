@@ -1,14 +1,19 @@
 <template>
   <div class="top-articles-container">
-    <el-row type="flex" justify="center" align="middle">
-      <el-button icon="el-icon-arrow-left" @click="switchMode('previous')"></el-button>
+    <el-row type="flex" justify="center" align="middle" class="header-row">
+      <span class="header-title">{{ capitalizedMode }} Top Articles</span>
+    </el-row>
+
+    <el-row type="flex" justify="center" align="middle" class="navigation-row">
+      <el-button type="primary" @click="switchMode('previous')"><el-icon><ArrowLeft /></el-icon></el-button>
 
       <div class="articles-slider">
-        <el-row :gutter="20">
-          <el-col v-for="(article, index) in currentArticles" :key="index" span="4">
-            <el-card @click="goToArticle(article.id)">
-              <div style="text-align: center;">
-                <img v-if="article.image" :src="article.image" class="article-image" />
+        <el-row :gutter="20" class="articles-row">
+          <el-col v-for="(article, index) in currentArticles" :key="index" span="4" class="article-col">
+            <el-card @click="goToArticle(article.id)" class="article-card">
+              <div class="article-content">
+                <!-- Use ref and set a dynamic ID based on the article ID -->
+                <img :ref="'img-' + article.aid" :src="defaultImageUrl" class="article-image" />
                 <div class="article-name">{{ article.title }}</div>
               </div>
             </el-card>
@@ -16,16 +21,28 @@
         </el-row>
       </div>
 
-      <el-button icon="el-icon-arrow-right" @click="switchMode('next')"></el-button>
+      <el-button type="primary" @click="switchMode('next')"><el-icon><ArrowRight /></el-icon></el-button>
     </el-row>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import { ElButton, ElCard, ElCol, ElRow, ElIcon } from 'element-plus';
+import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
+import defaultArticleImage from '@/assets/default-article-image.jpeg';
 
 export default {
   name: 'TopArticles',
+  components: {
+    ElButton,
+    ElCard,
+    ElCol,
+    ElRow,
+    ElIcon,
+    ArrowLeft,
+    ArrowRight
+  },
   data() {
     return {
       mode: 'daily', // 'daily', 'weekly', 'monthly'
@@ -33,26 +50,24 @@ export default {
         daily: [],
         weekly: [],
         monthly: []
-      } // This will hold articles for each mode
+      }, // This will hold articles for each mode
+      defaultImageUrl: defaultArticleImage
     };
   },
   computed: {
     currentArticles() {
-      // Return the articles for the current mode
       return this.articles[this.mode];
+    },
+    capitalizedMode() {
+      return this.mode.charAt(0).toUpperCase() + this.mode.slice(1);
     }
   },
   methods: {
     switchMode(direction) {
-      // Logic to switch between 'daily', 'weekly', and 'monthly'
       if (direction === 'next') {
-        if (this.mode === 'daily') this.mode = 'weekly';
-        else if (this.mode === 'weekly') this.mode = 'monthly';
-        else if (this.mode === 'monthly') this.mode = 'daily';
-      } else if (direction === 'previous') {
-        if (this.mode === 'daily') this.mode = 'monthly';
-        else if (this.mode === 'monthly') this.mode = 'weekly';
-        else if (this.mode === 'weekly') this.mode = 'daily';
+        this.mode = this.mode === 'daily' ? 'weekly' : this.mode === 'weekly' ? 'monthly' : 'daily';
+      } else {
+        this.mode = this.mode === 'daily' ? 'monthly' : this.mode === 'monthly' ? 'weekly' : 'daily';
       }
       this.fetchArticles();
     },
@@ -76,15 +91,14 @@ export default {
     fetchArticleImage(articleId) {
       axios.get(`http://localhost:8080/article-images/${articleId}`)
           .then(response => {
-            const base64Image = response.data[0]; // Assuming the first image is the one we want
-            console.log("Here!")
+            const base64Image = response.data[0];
             if (base64Image) {
-              const article = this.currentArticles.find(a => a.aid === articleId);
-              console.log("Here!!")
-              if (article) {
-                article.image = `data:image/jpeg;base64,${base64Image}`;
-                console.log("Here!!!")
-              }
+              this.$nextTick(() => {
+                const imgRef = this.$refs['img-' + articleId];
+                if (imgRef && imgRef.length) {
+                  imgRef[0].src = `data:image/jpeg;base64,${base64Image}`;
+                }
+              });
             }
           })
           .catch(error => {
@@ -92,13 +106,7 @@ export default {
           });
     }
   },
-  watch: {
-    mode() {
-      this.currentArticles.forEach(article => {
-        this.fetchArticleImage(article.id);
-      });
-    }
-  },
+
   mounted() {
     this.fetchArticles();
   }
@@ -109,38 +117,68 @@ export default {
 .top-articles-container {
   width: 100%;
   margin: auto;
-  overflow: hidden; /* Prevents horizontal scroll */
-}
-
-.articles-slider {
-  display: flex;
-  overflow-x: auto; /* Allows for a horizontal scroll */
-  scroll-behavior: smooth;
-}
-
-.article-image {
-  max-width: 100%;
-  height: auto; /* Adjust as necessary */
-  margin-bottom: 8px; /* Space between image and article name */
-}
-
-.article-name {
-  font-size: 1rem; /* Adjust as necessary */
-  text-align: center;
-}
-
-.el-col {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.el-row {
-  flex-wrap: nowrap; /* Prevents wrapping of child elements */
+.navigation-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.articles-slider {
+  display: flex;
+  justify-content: center;
+  flex-grow: 1; /* Allows the slider to grow as needed */
+}
+
+.el-row.articles-row {
+  flex-wrap: nowrap;
+  justify-content: center; /* Center the articles in the row */
+}
+
+.article-col {
+  flex: 0 0 18%; /* Reduce the size of each article */
+  max-width: 200px; /* Or set a maximum width */
+}
+
+.article-card {
+  border: 1px solid transparent;
+  transition: border-color 0.3s;
+  cursor: pointer;
+  height: 100%;
+}
+
+.article-card:hover {
+  border-color: blue;
+}
+
+.article-image {
+  max-width: 100%;
+  height: auto; /* Adjust the height as needed */
+  object-fit: cover; /* Adjust the object fit as needed */
+  margin-bottom: 8px;
+}
+
+.article-name {
+  font-size: 1rem;
+  text-align: center;
+}
+
+.header-row {
+  margin-bottom: 1rem;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 .el-button {
-  flex: none; /* Prevents buttons from stretching */
+  flex: none;
 }
 </style>
-
