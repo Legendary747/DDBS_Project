@@ -10,7 +10,7 @@
       <div class="articles-slider">
         <el-row :gutter="20" class="articles-row">
           <el-col v-for="(article, index) in currentArticles" :key="index" span="4" class="article-col">
-            <el-card @click="goToArticle(article.id)" class="article-card">
+            <el-card @click="goToArticle(article.aid)" class="article-card">
               <div class="article-content">
                 <!-- Use ref and set a dynamic ID based on the article ID -->
                 <img :ref="'img-' + article.aid" :src="defaultImageUrl" class="article-image" />

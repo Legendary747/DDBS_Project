@@ -135,6 +135,26 @@ public class TestController {
         return sb.toString();
     }
 
+    @GetMapping("/article/{articleId}")
+    public ResponseEntity<Article> getArticle(@PathVariable String articleId) {
+        Article a1 = articleOneRepository.findById(articleId).orElse(null);
+        Article a2 = articleTwoRepository.findById(articleId).orElse(null);
+        Article article = a1 == null ? a2 : a1;
+        if (article == null) return null;
+        return ResponseEntity.ok(article);
+    }
+
+    @GetMapping("/be-read/{articleId}")
+    public ResponseEntity<BeRead> getBeRead(@PathVariable String articleId) {
+        BeRead beRead1 = beReadOneRepository.findByAid(articleId);
+        System.out.println(beRead1);
+        BeRead beRead2 = beReadTwoRepository.findByAid(articleId);
+        System.out.println(beRead2);
+        BeRead beRead = beRead1 == null ? beRead2 : beRead1;
+
+        return ResponseEntity.ok(beRead);
+    }
+
     @GetMapping("/article-images/{articleId}")
     public ResponseEntity<?> getArticleImages(@PathVariable String articleId) {
         try {

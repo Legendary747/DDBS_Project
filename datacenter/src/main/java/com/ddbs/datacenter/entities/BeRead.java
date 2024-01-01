@@ -4,14 +4,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
 @Setter
 @Table(name = "be_read")
 public class BeRead {
@@ -28,6 +26,50 @@ public class BeRead {
     private String agreeUidList;
     private String shareNum;
     private String shareUidList;
+
+    public String getId() {
+        return id;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public String getAid() {
+        return aid;
+    }
+
+    public String getReadNum() {
+        return readNum;
+    }
+
+    public String getReadUidList() {
+        return readUidList;
+    }
+
+    public String getCommentNum() {
+        return commentNum;
+    }
+
+    public String getCommentUidList() {
+        return commentUidList;
+    }
+
+    public String getAgreeNum() {
+        return agreeNum;
+    }
+
+    public String getAgreeUidList() {
+        return agreeUidList;
+    }
+
+    public String getShareNum() {
+        return shareNum;
+    }
+
+    public String getShareUidList() {
+        return shareUidList;
+    }
 
     @Override
     public String toString() {
