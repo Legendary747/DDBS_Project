@@ -8,6 +8,7 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,7 +55,7 @@ public class MainController {
         return ids;
     }
     @GetMapping("/top_articles")
-    public ResponseEntity<?> getTopArticles() {
+    public ResponseEntity<Map<String, Object>> getTopArticles() {
         // day
         List<PopularRank> popularRanks1 = popularRankOneRepository.findAll();
         PopularRank popularRankDay = popularRanks1.get(0);
@@ -83,7 +84,8 @@ public class MainController {
         for (String id : weeklyId) {
             Article a1 = articleOneRepository.findById(id).orElse(null);
             Article a2 = articleTwoRepository.findById(id).orElse(null);
-            Article article = a1 == null ? a2 : a1;
+            Article
+                    article = a1 == null ? a2 : a1;
             if (article != null) weeklyArticles.add(article);
         }
         for (String id : monthlyId) {
@@ -137,57 +139,91 @@ public class MainController {
 
     @GetMapping("/article/{articleId}")
     public ResponseEntity<Article> getArticle(@PathVariable String articleId) {
-        Article a1 = articleOneRepository.findById(articleId).orElse(null);
-        Article a2 = articleTwoRepository.findById(articleId).orElse(null);
-        Article article = a1 == null ? a2 : a1;
-        System.out.println(article);
-        if (article == null) return null;
+        Article article = getArticleCached(articleId);
+        if (article == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(article);
     }
 
+    @Cacheable(value = "articles", key = "#articleId")
+    public Article getArticleCached(String articleId) {
+        Article a1 = articleOneRepository.findById(articleId).orElse(null);
+        Article a2 = articleTwoRepository.findById(articleId).orElse(null);
+        return a1 == null ? a2 : a1;
+    }
+
+
     @GetMapping("/be-read/{articleId}")
     public ResponseEntity<BeRead> getBeRead(@PathVariable String articleId) {
+        BeRead beRead = getBeReadCached(articleId);
+        if (beRead == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(beRead);
+    }
+
+    @Cacheable(value = "beReads", key = "#articleId")
+    public BeRead getBeReadCached(String articleId) {
         BeRead beRead1 = beReadOneRepository.findByAid(articleId);
         System.out.println(beRead1);
         BeRead beRead2 = beReadTwoRepository.findByAid(articleId);
         System.out.println(beRead2);
-        BeRead beRead = beRead1 == null ? beRead2 : beRead1;
-
-        return ResponseEntity.ok(beRead);
+        return beRead1 == null ? beRead2 : beRead1;
     }
 
     @GetMapping("/article-images/{articleId}")
-    public ResponseEntity<?> getArticleImages(@PathVariable String articleId) {
+    public ResponseEntity<List<String>> getArticleImages(@PathVariable String articleId) {
+        List<String> base64Images = getArticleImagesCached(articleId);
+        if (base64Images == null || base64Images.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonList("Article not found or no images available"));
+        }
+        return ResponseEntity.ok(base64Images);
+    }
+
+    @Cacheable(value = "articleImages", key = "#articleId")
+    public List<String> getArticleImagesCached(String articleId) {
         try {
-            List<String> imagePaths = getImagePathsForArticle(articleId); // Implement this method to get image paths
-            if (imagePaths == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Article not found");
-            System.out.println(imagePaths);
-            List<String> base64Images = readImagesFromHdfs(imagePaths);
-            return ResponseEntity.ok(base64Images);
+            List<String> imagePaths = getImagePathsForArticle(articleId);
+            if (imagePaths == null) return null;
+            return readImagesFromHdfs(imagePaths);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving images");
+            // Log the exception and return null or an empty list
+            return null;
         }
     }
 
+
     @GetMapping("/user/{userId}")
     public ResponseEntity<User> getUser(@PathVariable String userId) {
+        User user = getUserCached(userId);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(user);
+    }
+
+    @Cacheable(value = "users", key = "#userId")
+    public User getUserCached(String userId) {
         User u1 = userOneRepository.findById(userId).orElse(null);
         User u2 = userTwoRepository.findById(userId).orElse(null);
-        User user = u1 == null ? u2 : u1;
-        if (user == null) return null;
-        return ResponseEntity.ok(user);
+        return u1 == null ? u2 : u1;
     }
 
     @GetMapping("/user-read/{userId}")
     public ResponseEntity<List<String>> getUserRead(@PathVariable String userId) {
+        List<String> readArticleIds = getUserReadCached(userId);
+        return ResponseEntity.ok(readArticleIds);
+    }
+
+    @Cacheable(value = "userReads", key = "#userId")
+    public List<String> getUserReadCached(String userId) {
         List<UserRead> userRead1 = userReadOneRepository.findByUid(userId);
         List<UserRead> userRead2 = userReadTwoRepository.findByUid(userId);
         List<UserRead> userRead = new ArrayList<>();
         userRead.addAll(userRead1);
         userRead.addAll(userRead2);
-        List<String> readArticleIds = userRead.stream().map(UserRead::getAid).toList();
-
-        return ResponseEntity.ok(readArticleIds);
+        return userRead.stream().map(UserRead::getAid).toList();
     }
 
     private List<String> getImagePathsForArticle(String articleId) {

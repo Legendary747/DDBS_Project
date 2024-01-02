@@ -28,6 +28,8 @@ dependencies {
 	implementation 'org.apache.hadoop:hadoop-client:2.7.3'
 	// Log4j
 	implementation 'log4j:log4j:1.2.17'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 bootJar {
