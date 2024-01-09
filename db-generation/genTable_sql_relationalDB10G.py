@@ -206,7 +206,7 @@ with open(os.path.join(output_folder, "user_beijing.sql"), "w+") as f_beijing, o
     f_beijing.write("DROP TABLE IF EXISTS `user`;\n")
     f_beijing.write("CREATE TABLE `user` (\n" + \
             "  `timestamp` char(14) DEFAULT NULL,\n" + \
-            "  `id` char(5) DEFAULT NULL,\n" + \
+            "  `id` char(10) DEFAULT NULL,\n" + \
             "  `uid` char(5) DEFAULT NULL,\n" + \
             "  `name` char(9) DEFAULT NULL,\n" +  \
             "  `gender` char(7) DEFAULT NULL,\n" +  \
@@ -224,7 +224,7 @@ with open(os.path.join(output_folder, "user_beijing.sql"), "w+") as f_beijing, o
     f_hongkong.write("DROP TABLE IF EXISTS `user`;\n")
     f_hongkong.write("CREATE TABLE `user` (\n" + \
         "  `timestamp` char(14) DEFAULT NULL,\n" + \
-        "  `id` char(5) DEFAULT NULL,\n" + \
+        "  `id` char(10) DEFAULT NULL,\n" + \
         "  `uid` char(5) DEFAULT NULL,\n" + \
         "  `name` char(9) DEFAULT NULL,\n" +  \
         "  `gender` char(7) DEFAULT NULL,\n" +  \

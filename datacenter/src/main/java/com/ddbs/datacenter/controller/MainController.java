@@ -3,6 +3,8 @@ package com.ddbs.datacenter.controller;
 import com.ddbs.datacenter.entities.*;
 import com.ddbs.datacenter.repository.db1.*;
 import com.ddbs.datacenter.repository.db2.*;
+import com.ddbs.datacenter.repository.db3.UserThreeRepository;
+import com.ddbs.datacenter.repository.db4.UserFourRepository;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -11,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,6 +26,10 @@ public class MainController {
     UserTwoRepository userTwoRepository;
     @Autowired
     UserOneRepository userOneRepository;
+    @Autowired
+    UserThreeRepository userThreeRepository;
+    @Autowired
+    UserFourRepository userFourRepository;
 
     @Autowired
     ArticleTwoRepository articleTwoRepository;
@@ -267,4 +271,42 @@ public class MainController {
         }
         return base64Images;
     }
+
+    @PostMapping("/users")
+    public ResponseEntity<User> createUser(@RequestBody User userData) {
+        System.out.println(userData);
+        // Get the max uid and generate new uid
+        Integer maxUidOne = Integer.parseInt(userOneRepository.findMaxUid());
+        Integer maxUidTwo = Integer.parseInt(userTwoRepository.findMaxUid());
+        Integer maxUid = maxUidOne > maxUidTwo ? maxUidOne : maxUidTwo;
+        String nextUid = "" + (maxUid + 1);
+        String nexId = "u" + nextUid;
+
+        // Create new User object
+        User newUser = new User();
+        newUser.setUid(nextUid);
+        newUser.setId(nexId.substring(0,5)); // Assuming id is a string representation of nextUid
+        newUser.setTimestamp(String.valueOf(System.currentTimeMillis()));
+        newUser.setName(userData.getName());
+        newUser.setGender(userData.getGender());
+        newUser.setEmail(userData.getEmail());
+        newUser.setPhone(userData.getPhone());
+        newUser.setDept(userData.getDept());
+        newUser.setGrade(userData.getGrade());
+        newUser.setLanguage(userData.getLanguage());
+        newUser.setRegion(userData.getRegion());
+        newUser.setRole(userData.getRole());
+        newUser.setPreferTags(userData.getPreferTags());
+        newUser.setObtainedCredits(userData.getObtainedCredits());
+        System.out.println(newUser);
+        if (newUser.getRegion().equals("Beijing")) {
+            userOneRepository.save(newUser);
+            userThreeRepository.save(newUser);
+        } else {
+            userTwoRepository.save(newUser);
+            userFourRepository.save(newUser);
+        }
+        return ResponseEntity.ok(newUser);
+    }
+
 }

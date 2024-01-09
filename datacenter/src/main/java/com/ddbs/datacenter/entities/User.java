@@ -93,6 +93,62 @@ public class User {
         return obtainedCredits;
     }
 
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setDept(String dept) {
+        this.dept = dept;
+    }
+
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setPreferTags(String preferTags) {
+        this.preferTags = preferTags;
+    }
+
+    public void setObtainedCredits(String obtainedCredits) {
+        this.obtainedCredits = obtainedCredits;
+    }
+
     @Override
     public String toString() {
         return "User{" +

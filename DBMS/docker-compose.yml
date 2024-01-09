@@ -138,8 +138,7 @@ services:
       - mynetwork
   redis:
     image: "redis:latest"
-    ports:
-      - "6379:6379"
+    command: redis-server --requirepass MambaOut
     volumes:
       - redis-data:/data
     networks:
